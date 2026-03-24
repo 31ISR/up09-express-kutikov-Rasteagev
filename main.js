@@ -12,10 +12,12 @@ const auth = (req, res, next) => {
 
     if (!authHeader) return res.status(401)
         .json({ error: "missing auth header" })
-    const token = authHeaer.split(" ")[1]
+    const token = authHeader.split(" ")[1]
     if (!token) return res.status(401).json({ error: "wrong token format" })
     try {
-        const decoded = jwt.verify()
+        const decoded = jwt.verify(token, SECRET)
+        req.user = decoded
+        next()
     } catch (error) {
         console.error(error)
 
@@ -57,7 +59,7 @@ app.post("/auth/signup", (req, res) => {
     }
 })
 
-app.delete("/users/:id", (req, res) => {
+app.delete("/users/:id", auth, (req, res) => {
     const { id } = req.params
 
     try {
@@ -65,7 +67,7 @@ app.delete("/users/:id", (req, res) => {
         if (query.changes == 0) {
             return res.status(404).json({ error: "э а где гей" })
         }
-        return res.status(200).json({ message: "лол" })
+        return res.status(200).json({ message: "успешно" })
     } catch (error) {
         console.error(error)
         return res.status(500).json({ messages: "что-то пошло не так" })
@@ -105,6 +107,20 @@ app.post("/todos", (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+app.delete("/todos/:id", auth, (req, res) => {
+    const { id } = req.params
+
+    try {
+        const query = db.prepare("DELETE FROM todos WHERE id = ?").run(id)
+        if (query.changes == 0) {
+            return res.status(404).json({ error: "э а где гей" })
+        }
+        return res.status(200).json({ message: "успешно" })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ messages: "что-то пошло не так" })
+    }
+})
 
 
 app.listen(3000)
