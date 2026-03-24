@@ -11,12 +11,12 @@ db.prepare(`
     )
     `).run()
 
-    db.prepare(`
+db.prepare(`
         CREATE TABLE IF NOT EXISTS todos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             status INTEGER NOT NULL
         )
-    `)
+    `).run()
 
 module.exports = db
